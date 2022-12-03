@@ -5,36 +5,44 @@
 
 ; start configuration
 
-; Configure the REFS[1:0] bits to select the high reference voltage to use
-; Using AVCC
-cbi     ADMUX,7
-sbi	ADMUX,6
-
-sbi	ADMUX,5		;using 8 bit conversion results
-
+; Using AVCC 
 ; Using A5 as an input
-cbi     ADMUX,3
-sbi     ADMUX,2
-cbi     ADMUX,1
-sbi     ADMUX,0
-
-; set clock prescale 16
-sbi 	ADCSRA,2
-cbi	ADCSRA,1
-cbi	ADCSRA,0
+ldi	R16,(1<<REFS0)|(1<<MUX2)|(1<<MUX0)
+sts	ADMUX,R16
 
 ; enable ADC
-sbi	ADCSRA,7
+; set clock prescale 128
+ldi	R16,(1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)
+sts	ADCSRA,R16
+
+; set all PORTD pins as output for storing ADCH 8 bit data
+ldi	R16,0b11111111
+out 	DDRD, R16
+
+sbi 	DDRB,5    		; Set PB5 (onboard led) as Output
+sbi	DDRB,4			; DEBUG pin for ADC saveresult subroutine
+cbi	PORTB,5			; turn led off
+cbi	PORTB,4
 
 ; end of configuration
 
-sbi     ADCSRA,6	; start polling
+;sbi     ADCSRA,6		; start polling
+ldi	R16,(1<<ADSC)
+sts	ADCSRA,R16
 
 loop:
-	cbic 	ADCSRA,6
-	rjmp	result			; AD conversion is ready jump to result
-	rjmp 	loop			; AD conversion is still progress jump back to loop
+	lds	r16,ADCSRA
+	sbrc 	r16,ADSC
+	rjmp 	loop		; AD conversion is still progress jump back to loop
+	rjmp	saveresult	; AD conversion is ready jump to result
 
+saveresult:
+	sbi	PORTB,4 	; set pin to indicate we are in ADC loop
+	lds	R16,ADCL
+	out	PORTD,R16
+	rjmp	result
+	
 result:
-	; set led on arduono board pin 13 high to indicate result is ready
-	rjmp	result; infinite loop	
+	sbi	PORTB,5		; set led on arduono board pin 13 high to indicate result is ready
+	rjmp	result		; infinite loop	
+
