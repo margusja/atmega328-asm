@@ -7,13 +7,17 @@
 
 ; Using AVCC 
 ; Using A5 as an input
-ldi	R16,(1<<REFS0)|(1<<MUX2)|(1<<MUX0)
+ori	R16,(1<<REFS0)
 sts	ADMUX,R16
 
 ; enable ADC
 ; set clock prescale 128
 ldi	R16,(1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)
 sts	ADCSRA,R16
+
+; disable free running mode
+ldi 	R16,(1<<ADTS2)|(1<<ADTS1)|(1<<ADTS0)
+sts     ADCSRB,R16
 
 ; set all PORTD pins as output for storing ADCH 8 bit data
 ldi	R16,0b11111111
@@ -26,18 +30,19 @@ cbi	PORTB,4
 
 ; end of configuration
 
-;sbi     ADCSRA,6		; start polling
-ldi	R16,(1<<ADSC)
+; start polling
+ori	R16,(1<<ADSC)
 sts	ADCSRA,R16
 
 loop:
+	sbi	PORTB,4 	; set pin to indicate we are in ADC loop
 	lds	r16,ADCSRA
 	sbrc 	r16,ADSC
 	rjmp 	loop		; AD conversion is still progress jump back to loop
 	rjmp	saveresult	; AD conversion is ready jump to result
 
 saveresult:
-	sbi	PORTB,4 	; set pin to indicate we are in ADC loop
+	cbi	PORTB,4 	; set pin to indicate we are in ADC loop
 	lds	R16,ADCL
 	out	PORTD,R16
 	rjmp	result
