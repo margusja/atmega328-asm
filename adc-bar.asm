@@ -48,22 +48,22 @@ setup:
 loop:
 	cpi	r16, 0b00000000		; r16 = 0
 	breq	set_0 			; all leds off
-	cpi	r16, 0b00100001 	; r16 < 33 (32+1) 
+	cpi	r16, 0b00100001 	; r16 > 33 (32+1) 
 	brlo	set_1 			; led 1 on
-	cpi	r16, 0b01000001 	; r16 < 65 (64+1)
+	cpi	r16, 0b01000001 	; r16 > 65 (64+1)
 	brlo	set_2 			; leds 2, 1 on
-	cpi	r16, 0b01100001 	; r16 < 97 (96+1)
+	cpi	r16, 0b01100001 	; r16 > 97 (96+1)
 	brlo	set_3 			; leds 3, 2, 1 on
-	cpi	r16, 0b10000001 	; r16 < 129 (128+1)
+	cpi	r16, 0b10000001 	; r16 > 129 (128+1)
 	brlo	set_4			; leds 4,3,2,1 on
-	cpi	r16, 0b10100001 	; r16 < 161 (160+1)
+	cpi	r16, 0b10100001 	; r16 > 161 (160+1)
 	brlo	set_5			; leds 5,4,3,2,1 on
-	cpi	r16, 0b11000001		; r16 < 193 (192+1)
+	cpi	r16, 0b11000001		; r16 > 193 (192+1)
 	brlo	set_6			; leds 6,5,4,3,2,1 on
-	cpi	r16, 0b11100001		; r16 < 225 (224+1)
+	cpi	r16, 0b11100001		; r16 > 225 (224+1)
 	brlo	set_7			; leds 7,6,5,4,3,2,1 on
-	cpi	r16, 0b11110000		; r16 = 256
-	breq	set_8			; all leds on
+	cpi	r16, 0b11110001		; r16 > 241 (240+1)
+	brlo	set_8			; all leds on
 	rjmp	loop		; infinite loop	
 
 set_0:

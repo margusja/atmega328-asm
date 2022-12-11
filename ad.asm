@@ -1,7 +1,7 @@
 .include "m328pdef.inc"
 
-.cseg
-.org 	0x00
+.cseg			;  compiler switch to the code section
+.org 	0x00		
 
 ; start configuration
 
